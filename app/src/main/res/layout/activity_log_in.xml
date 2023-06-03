@@ -67,10 +67,23 @@
         app:cornerRadius="15dp" />
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/signInButton"
+        android:id="@+id/biometricIdentificationButton"
         android:layout_width="350dp"
         android:layout_height="50dp"
         android:layout_below="@+id/logInButton"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:backgroundTint="@color/app"
+        android:elevation="40dp"
+        android:text="@string/biometric_identification"
+        android:textColor="@color/white"
+        app:cornerRadius="15dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/signInButton"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:layout_below="@+id/biometricIdentificationButton"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:backgroundTint="@color/light_app"

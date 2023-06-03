@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.locationtrackerapp.R;
-import com.example.locationtrackerapp.utils.FirebaseUtils;
+import com.example.locationtrackerapp.utils.FirebaseAuthUtil;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -90,8 +90,8 @@ public class SignInActivity extends AppCompatActivity {
             passwordTextLayout.setErrorEnabled(false);
         }
 
-        FirebaseUtils firebaseUtils = new FirebaseUtils(this);
-        firebaseUtils.registerUser(email, password, name);
+        FirebaseAuthUtil firebaseAuthUtil = new FirebaseAuthUtil(this);
+        firebaseAuthUtil.registerUser(email, password, name);
 
         // Clear the input fields
         nameTextInput.setText("");

@@ -1,14 +1,23 @@
 package com.example.locationtrackerapp.activities;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.hardware.biometrics.BiometricPrompt;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.CancellationSignal;
 import android.text.TextUtils;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 
 import com.example.locationtrackerapp.R;
-import com.example.locationtrackerapp.utils.FirebaseUtils;
+import com.example.locationtrackerapp.utils.FirebaseAuthUtil;
+import com.example.locationtrackerapp.utils.SharedPreferencesUtil;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -21,10 +30,12 @@ public class LogInActivity extends AppCompatActivity {
     private TextInputEditText emailTextInput;
     private TextInputEditText passwordTextInput;
 
-    MaterialButton logInButton;
-    MaterialButton signInButton;
+    private MaterialButton logInButton;
+    private MaterialButton signInButton;
+    private MaterialButton biometricIdentificationButton;
+    private SharedPreferencesUtil sharedPreferencesUtil;
 
-    Toolbar toolbar;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +57,23 @@ public class LogInActivity extends AppCompatActivity {
 
         logInButton = findViewById(R.id.logInButton);
         signInButton = findViewById(R.id.signInButton);
+        biometricIdentificationButton = findViewById(R.id.biometricIdentificationButton);
+
+        sharedPreferencesUtil = new SharedPreferencesUtil(this);
+        if (sharedPreferencesUtil.getString(SharedPreferencesUtil.EMAIL_KEY).isEmpty()
+                || sharedPreferencesUtil.getString(SharedPreferencesUtil.PASS_KEY).isEmpty()) {
+            biometricIdentificationButton.setVisibility(View.GONE);
+        }
     }
 
     private void loadListeners() {
         logInButton.setOnClickListener(v -> logIn());
+
+        biometricIdentificationButton.setOnClickListener(v -> {
+            if (checkBiometricSupport()) {
+                authenticateUser(v);
+            }
+        });
 
         signInButton.setOnClickListener(v -> redirectToSignIn());
     }
@@ -78,12 +102,100 @@ public class LogInActivity extends AppCompatActivity {
             passwordTextLayout.setErrorEnabled(false);
         }
 
-        FirebaseUtils firebaseUtils = new FirebaseUtils(this);
-        firebaseUtils.loginUser(email, password);
+        FirebaseAuthUtil firebaseAuthUtil = new FirebaseAuthUtil(this);
+        firebaseAuthUtil.loginUser(email, password);
 
         // Clear the input fields
         emailTextInput.setText("");
         passwordTextInput.setText("");
+    }
+
+    private void notifyUser(String message) {
+        Toast.makeText(this,
+                message,
+                Toast.LENGTH_LONG).show();
+    }
+
+    private Boolean checkBiometricSupport() {
+        PackageManager packageManager = this.getPackageManager();
+
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.USE_BIOMETRIC) !=
+                PackageManager.PERMISSION_GRANTED) {
+
+            notifyUser("Fingerprint authentication permission not enabled");
+            return false;
+        }
+
+        if (!packageManager.hasSystemFeature(PackageManager.FEATURE_FINGERPRINT)) {
+            notifyUser("Not a system feature");
+            return false;
+        }
+
+        return true;
+    }
+
+    private BiometricPrompt.AuthenticationCallback getAuthenticationCallback() {
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            return new BiometricPrompt.AuthenticationCallback() {
+                @Override
+                public void onAuthenticationError(int errorCode,
+                                                  CharSequence errString) {
+                    notifyUser("Authentication error: " + errString);
+                    super.onAuthenticationError(errorCode, errString);
+                }
+
+                @Override
+                public void onAuthenticationHelp(int helpCode,
+                                                 CharSequence helpString) {
+                    super.onAuthenticationHelp(helpCode, helpString);
+                }
+
+                @Override
+                public void onAuthenticationFailed() {
+                    super.onAuthenticationFailed();
+                }
+
+                @Override
+                public void onAuthenticationSucceeded(
+                        BiometricPrompt.AuthenticationResult result) {
+                    notifyUser("Authentication Succeeded");
+
+                    String email = sharedPreferencesUtil.getString(SharedPreferencesUtil.EMAIL_KEY);
+                    String password = sharedPreferencesUtil.getString(SharedPreferencesUtil.PASS_KEY);
+
+                    FirebaseAuthUtil firebaseAuthUtil = new FirebaseAuthUtil(LogInActivity.this);
+                    firebaseAuthUtil.loginUser(email, password);
+                    super.onAuthenticationSucceeded(result);
+                }
+            };
+        }
+        return null;
+    }
+
+    private CancellationSignal getCancellationSignal() {
+        CancellationSignal cancellationSignal = new CancellationSignal();
+        cancellationSignal.setOnCancelListener((CancellationSignal.OnCancelListener)
+                () -> notifyUser("Cancelled via signal"));
+        return cancellationSignal;
+    }
+
+    public void authenticateUser(View view) {
+        BiometricPrompt biometricPrompt = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            biometricPrompt = new BiometricPrompt.Builder(this)
+                    .setTitle("Biometric Demo")
+                    .setSubtitle("Authentication is required to continue")
+                    .setNegativeButton("Cancel", this.getMainExecutor(),
+                            (dialogInterface, i) -> notifyUser("Authentication cancelled"))
+                    .build();
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            biometricPrompt.authenticate(getCancellationSignal(), getMainExecutor(),
+                    getAuthenticationCallback());
+        }
     }
 
 }

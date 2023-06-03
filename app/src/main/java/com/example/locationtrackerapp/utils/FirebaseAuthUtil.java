@@ -11,14 +11,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
-public class FirebaseUtils {
+public class FirebaseAuthUtil {
 
     private static final String TAG = "FirebaseUtils";
 
     private final FirebaseAuth mAuth;
     private Context mContext;
 
-    public FirebaseUtils(Context context) {
+    public FirebaseAuthUtil(Context context) {
         mContext = context;
         mAuth = FirebaseAuth.getInstance();
     }
@@ -52,7 +52,9 @@ public class FirebaseUtils {
                     if (task.isSuccessful()) {
                         // Login successful
                         Toast.makeText(mContext, "Login successful.", Toast.LENGTH_SHORT).show();
-
+                        SharedPreferencesUtil sharedPreferences = new SharedPreferencesUtil(mContext);
+                        sharedPreferences.saveString(SharedPreferencesUtil.EMAIL_KEY, email);
+                        sharedPreferences.saveString(SharedPreferencesUtil.PASS_KEY, password);
                         mContext.startActivity(new Intent(mContext, MainActivity.class));
                     } else {
                         String errorMessage = task.getException().getMessage();
