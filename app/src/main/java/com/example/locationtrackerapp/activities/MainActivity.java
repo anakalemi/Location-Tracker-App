@@ -1,8 +1,10 @@
-package com.example.locationtrackerapp;
+package com.example.locationtrackerapp.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.example.locationtrackerapp.R;
 
 public class MainActivity extends AppCompatActivity {
 
