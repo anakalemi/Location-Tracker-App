@@ -8,4 +8,9 @@
     <string name="name">Name</string>
     <string name="email">Email</string>
     <string name="biometric_identification">Biometric Identification</string>
+    <string name="navigation_drawer_open">Nav Drawer Open</string>
+    <string name="navigation_drawer_close">Nav Drawer Close</string>
+    <string name="profile">Profile</string>
+    <string name="friends">Friends</string>
+    <string name="log_out">Log Out</string>
 </resources>

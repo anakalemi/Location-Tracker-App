@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/profileItem"
+        android:title="@string/profile" />
+    <item
+        android:id="@+id/friendsItem"
+        android:title="@string/friends" />
+    <item
+        android:id="@+id/logOutItem"
+        android:title="@string/log_out" />
+</menu>

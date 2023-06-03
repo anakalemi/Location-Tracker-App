@@ -185,7 +185,7 @@ public class LogInActivity extends AppCompatActivity {
         BiometricPrompt biometricPrompt = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             biometricPrompt = new BiometricPrompt.Builder(this)
-                    .setTitle("Biometric Demo")
+                    .setTitle("Biometric Identification")
                     .setSubtitle("Authentication is required to continue")
                     .setNegativeButton("Cancel", this.getMainExecutor(),
                             (dialogInterface, i) -> notifyUser("Authentication cancelled"))
