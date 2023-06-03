@@ -1,5 +1,6 @@
 package com.example.locationtrackerapp.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -14,6 +15,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.locationtrackerapp.R;
 import com.example.locationtrackerapp.utils.FirebaseAuthUtil;
+import com.example.locationtrackerapp.utils.SessionManager;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -63,11 +65,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (item.getItemId() == R.id.friendsItem) {
             //Todo
         } else if (item.getItemId() == R.id.logOutItem) {
-            // Todo
+            logout();
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void logout() {
+        SessionManager sessionManager = new SessionManager(this);
+        sessionManager.logout();
+        Intent intent = new Intent(this, LogInActivity.class);
+        startActivity(intent);
+        finish();
     }
 
     @Override

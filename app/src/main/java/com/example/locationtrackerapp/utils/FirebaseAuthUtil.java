@@ -55,7 +55,11 @@ public class FirebaseAuthUtil {
                         SharedPreferencesUtil sharedPreferences = new SharedPreferencesUtil(mContext);
                         sharedPreferences.saveString(SharedPreferencesUtil.EMAIL_KEY, email);
                         sharedPreferences.saveString(SharedPreferencesUtil.PASS_KEY, password);
+
+                        SessionManager sessionManager = new SessionManager(mContext);
+                        sessionManager.saveSession(mAuth.getCurrentUser().getUid(), email);
                         mContext.startActivity(new Intent(mContext, MainActivity.class));
+                        ((Activity) mContext).finish();
                     } else {
                         String errorMessage = task.getException().getMessage();
                         Log.w(TAG, "signInWithEmail:failure", task.getException());

@@ -61,6 +61,7 @@ public class SignInActivity extends AppCompatActivity {
     private void redirectToLogIn() {
         Intent intent = new Intent(this, LogInActivity.class);
         startActivity(intent);
+        finish();
     }
 
     private void signIn() {

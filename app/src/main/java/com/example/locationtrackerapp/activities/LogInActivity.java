@@ -17,6 +17,7 @@ import androidx.core.app.ActivityCompat;
 
 import com.example.locationtrackerapp.R;
 import com.example.locationtrackerapp.utils.FirebaseAuthUtil;
+import com.example.locationtrackerapp.utils.SessionManager;
 import com.example.locationtrackerapp.utils.SharedPreferencesUtil;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -43,7 +44,17 @@ public class LogInActivity extends AppCompatActivity {
         setContentView(R.layout.activity_log_in);
 
         initUIComponents();
+        sessionCheck();
         loadListeners();
+    }
+
+    private void sessionCheck() {
+        SessionManager sessionManager = new SessionManager(this);
+        if (sessionManager.isLoggedIn()) {
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 
     private void initUIComponents() {
@@ -81,6 +92,7 @@ public class LogInActivity extends AppCompatActivity {
     private void redirectToSignIn() {
         Intent intent = new Intent(this, SignInActivity.class);
         startActivity(intent);
+        finish();
     }
 
     private void logIn() {
