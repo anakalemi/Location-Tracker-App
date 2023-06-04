@@ -22,7 +22,7 @@ public class FirebaseLocationService {
 
     private void storeLocationInFirebase(double latitude, double longitude) {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference userLocationRef = usersRef.child(userId).child("location");
+        DatabaseReference userLocationRef = usersRef.child(userId);
 
         userLocationRef.child("latitude").setValue(latitude)
                 .addOnSuccessListener(aVoid -> {
@@ -42,7 +42,7 @@ public class FirebaseLocationService {
     }
 
     public Location getUserLocation(String userId, OnLocationLoadedListener listener) {
-        DatabaseReference userLocationRef = usersRef.child(userId).child("location");
+        DatabaseReference userLocationRef = usersRef.child(userId);
         Location location = new Location("");
 
         userLocationRef.child("latitude").get()

@@ -15,7 +15,7 @@ import java.util.List;
 
 public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHolder> {
 
-    private final List<User> userList;
+    private List<User> userList;
     private OnItemClickListener onItemClickListener;
 
     public UserListAdapter(List<User> userList) {
@@ -70,4 +70,12 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
         onItemClickListener = listener;
     }
 
+    public void setUserList(List<User> userList) {
+        this.userList = userList;
+        notifyDataSetChanged();
+    }
+
+    public List<User> getUserList() {
+        return userList;
+    }
 }

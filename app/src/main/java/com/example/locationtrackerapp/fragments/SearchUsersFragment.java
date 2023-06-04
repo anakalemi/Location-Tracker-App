@@ -1,7 +1,10 @@
 package com.example.locationtrackerapp.fragments;
 
+import static android.content.ContentValues.TAG;
+
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.locationtrackerapp.R;
 import com.example.locationtrackerapp.adapters.UserListAdapter;
 import com.example.locationtrackerapp.entities.User;
+import com.example.locationtrackerapp.services.FirebaseUserService;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,16 +25,15 @@ import java.util.List;
 public class SearchUsersFragment extends Fragment {
     private View view;
     private RecyclerView recyclerView;
-    private UserListAdapter adapter;
-    private List<User> userList;
+    private final UserListAdapter adapter = new UserListAdapter(new ArrayList<>());
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_search_users, container, false);
 
         recyclerView = view.findViewById(R.id.friendsRecyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
         setRecyclerViewAdapter();
         loadListeners();
         return view;
@@ -37,31 +41,45 @@ public class SearchUsersFragment extends Fragment {
 
     private void loadListeners() {
         adapter.setOnItemClickListener(position -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-            builder.setTitle("Send Friend Request")
-                    .setMessage("Do you want to send a friend request to this user?")
-                    .setPositiveButton("Send", (dialogInterface, i) -> {
-                        // todo sendFriendRequest();
-                    })
-                    .setNegativeButton("Cancel", (dialogInterface, i) -> {
-                        dialogInterface.dismiss();
-                    }).show();
+            User selectedUser = adapter.getUserList().get(position);
+            boolean hasAnyPendingRequest = selectedUser.getFriendRequests().values().stream()
+                    .anyMatch(r -> r.getSenderUUID()
+                            .equals(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+
+            if (!hasAnyPendingRequest) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                builder.setTitle("Send Friend Request")
+                        .setMessage("Do you want to send a friend request to " + selectedUser.getName() + "?")
+                        .setPositiveButton("Send", (dialogInterface, i) -> sendFriendRequest(selectedUser))
+                        .setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.dismiss())
+                        .show();
+            } else {
+                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                builder.setTitle("Friend Request Pending")
+                        .setMessage("Wait for " + selectedUser.getName() + " to respond.")
+                        .setNegativeButton("Ok", (dialogInterface, i) -> dialogInterface.dismiss())
+                        .show();
+            }
         });
     }
 
+    private void sendFriendRequest(User selectedUser) {
+        new FirebaseUserService(view.getContext()).sendFriendRequest(selectedUser.getUuid());
+    }
+
     private void setRecyclerViewAdapter() {
-        List<User> userList = getUsers();
-        adapter = new UserListAdapter(userList);
+        new FirebaseUserService(view.getContext()).getAllUsers(new FirebaseUserService.UserCallback() {
+            @Override
+            public void onUsersLoaded(List<User> userList) {
+                adapter.setUserList(userList);
+                recyclerView.setAdapter(adapter);
+            }
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
-        recyclerView.setLayoutManager(layoutManager);
-
-        recyclerView.setAdapter(adapter);
+            @Override
+            public void onDataCancelled(String errorMessage) {
+                Log.e(TAG, "Error retrieving users: " + errorMessage);
+            }
+        });
     }
 
-    private List<User> getUsers() { //todo
-        List<User> users = new ArrayList<>();
-        users.add(new User("User", "user@gmail.com"));
-        return users;
-    }
 }

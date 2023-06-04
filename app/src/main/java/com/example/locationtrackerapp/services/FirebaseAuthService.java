@@ -58,6 +58,8 @@ public class FirebaseAuthService {
                         sharedPreferences.saveString(SharedPreferencesUtils.EMAIL_KEY, email);
                         sharedPreferences.saveString(SharedPreferencesUtils.PASS_KEY, password);
 
+                        new FirebaseUserService(mContext).storeUserInFirebase();
+
                         SessionManager sessionManager = new SessionManager(mContext);
                         sessionManager.saveSession(mAuth.getCurrentUser().getUid(), email);
                         mContext.startActivity(new Intent(mContext, MainActivity.class));
