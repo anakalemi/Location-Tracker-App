@@ -16,9 +16,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
 import com.example.locationtrackerapp.R;
-import com.example.locationtrackerapp.utils.FirebaseAuthUtil;
+import com.example.locationtrackerapp.services.FirebaseAuthService;
 import com.example.locationtrackerapp.utils.SessionManager;
-import com.example.locationtrackerapp.utils.SharedPreferencesUtil;
+import com.example.locationtrackerapp.utils.SharedPreferencesUtils;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -34,7 +34,7 @@ public class LogInActivity extends AppCompatActivity {
     private MaterialButton logInButton;
     private MaterialButton signInButton;
     private MaterialButton biometricIdentificationButton;
-    private SharedPreferencesUtil sharedPreferencesUtil;
+    private SharedPreferencesUtils sharedPreferencesUtils;
 
     private Toolbar toolbar;
 
@@ -70,9 +70,9 @@ public class LogInActivity extends AppCompatActivity {
         signInButton = findViewById(R.id.signInButton);
         biometricIdentificationButton = findViewById(R.id.biometricIdentificationButton);
 
-        sharedPreferencesUtil = new SharedPreferencesUtil(this);
-        if (sharedPreferencesUtil.getString(SharedPreferencesUtil.EMAIL_KEY).isEmpty()
-                || sharedPreferencesUtil.getString(SharedPreferencesUtil.PASS_KEY).isEmpty()) {
+        sharedPreferencesUtils = new SharedPreferencesUtils(this);
+        if (sharedPreferencesUtils.getString(SharedPreferencesUtils.EMAIL_KEY).isEmpty()
+                || sharedPreferencesUtils.getString(SharedPreferencesUtils.PASS_KEY).isEmpty()) {
             biometricIdentificationButton.setVisibility(View.GONE);
         }
     }
@@ -114,8 +114,8 @@ public class LogInActivity extends AppCompatActivity {
             passwordTextLayout.setErrorEnabled(false);
         }
 
-        FirebaseAuthUtil firebaseAuthUtil = new FirebaseAuthUtil(this);
-        firebaseAuthUtil.loginUser(email, password);
+        FirebaseAuthService firebaseAuthService = new FirebaseAuthService(this);
+        firebaseAuthService.loginUser(email, password);
 
         // Clear the input fields
         emailTextInput.setText("");
@@ -174,11 +174,11 @@ public class LogInActivity extends AppCompatActivity {
                         BiometricPrompt.AuthenticationResult result) {
                     notifyUser("Authentication Succeeded");
 
-                    String email = sharedPreferencesUtil.getString(SharedPreferencesUtil.EMAIL_KEY);
-                    String password = sharedPreferencesUtil.getString(SharedPreferencesUtil.PASS_KEY);
+                    String email = sharedPreferencesUtils.getString(SharedPreferencesUtils.EMAIL_KEY);
+                    String password = sharedPreferencesUtils.getString(SharedPreferencesUtils.PASS_KEY);
 
-                    FirebaseAuthUtil firebaseAuthUtil = new FirebaseAuthUtil(LogInActivity.this);
-                    firebaseAuthUtil.loginUser(email, password);
+                    FirebaseAuthService firebaseAuthService = new FirebaseAuthService(LogInActivity.this);
+                    firebaseAuthService.loginUser(email, password);
                     super.onAuthenticationSucceeded(result);
                 }
             };

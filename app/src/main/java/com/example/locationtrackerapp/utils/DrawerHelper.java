@@ -14,8 +14,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.locationtrackerapp.R;
 import com.example.locationtrackerapp.activities.LogInActivity;
+import com.example.locationtrackerapp.activities.MainActivity;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.auth.FirebaseUser;
 
 public class DrawerHelper implements NavigationView.OnNavigationItemSelectedListener {
     private AppCompatActivity activity;
@@ -41,7 +41,7 @@ public class DrawerHelper implements NavigationView.OnNavigationItemSelectedList
         NavigationView navigationView = activity.findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         loggedInName = navigationView.getHeaderView(0).findViewById(R.id.loggedInName);
-        setCurrentUserNameInNavHeader();
+        loggedInName.setText(LocationTrackerAppUtils.getCurrentUserName());
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 activity, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -49,17 +49,12 @@ public class DrawerHelper implements NavigationView.OnNavigationItemSelectedList
         toggle.syncState();
     }
 
-    private void setCurrentUserNameInNavHeader() {
-        FirebaseUser currentUser = new FirebaseAuthUtil(activity).getmAuth().getCurrentUser();
-        if (currentUser != null) {
-            loggedInName.setText(currentUser.getDisplayName());
-        }
-    }
-
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.profileItem) {
-            // Todo: Handle profile item click
+            Intent intent = new Intent(activity, MainActivity.class);
+            activity.startActivity(intent);
+            activity.finish();
         } else if (item.getItemId() == R.id.friendsItem) {
             // Todo: Handle friends item click
         } else if (item.getItemId() == R.id.logOutItem) {

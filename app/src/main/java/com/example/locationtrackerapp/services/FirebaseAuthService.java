@@ -1,4 +1,4 @@
-package com.example.locationtrackerapp.utils;
+package com.example.locationtrackerapp.services;
 
 import android.app.Activity;
 import android.content.Context;
@@ -7,18 +7,20 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.locationtrackerapp.activities.MainActivity;
+import com.example.locationtrackerapp.utils.SessionManager;
+import com.example.locationtrackerapp.utils.SharedPreferencesUtils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 
-public class FirebaseAuthUtil {
+public class FirebaseAuthService {
 
-    private static final String TAG = "FirebaseUtils";
+    private static final String TAG = "FirebaseAuthService";
 
     private final FirebaseAuth mAuth;
-    private Context mContext;
+    private final Context mContext;
 
-    public FirebaseAuthUtil(Context context) {
+    public FirebaseAuthService(Context context) {
         mContext = context;
         mAuth = FirebaseAuth.getInstance();
     }
@@ -51,10 +53,10 @@ public class FirebaseAuthUtil {
                 .addOnCompleteListener((Activity) mContext, task -> {
                     if (task.isSuccessful()) {
                         // Login successful
-                        Toast.makeText(mContext, "Login successful.", Toast.LENGTH_SHORT).show();
-                        SharedPreferencesUtil sharedPreferences = new SharedPreferencesUtil(mContext);
-                        sharedPreferences.saveString(SharedPreferencesUtil.EMAIL_KEY, email);
-                        sharedPreferences.saveString(SharedPreferencesUtil.PASS_KEY, password);
+                        Log.d(TAG, "Login successful.");
+                        SharedPreferencesUtils sharedPreferences = new SharedPreferencesUtils(mContext);
+                        sharedPreferences.saveString(SharedPreferencesUtils.EMAIL_KEY, email);
+                        sharedPreferences.saveString(SharedPreferencesUtils.PASS_KEY, password);
 
                         SessionManager sessionManager = new SessionManager(mContext);
                         sessionManager.saveSession(mAuth.getCurrentUser().getUid(), email);
@@ -66,10 +68,6 @@ public class FirebaseAuthUtil {
                         Toast.makeText(mContext, "Login failed: " + errorMessage, Toast.LENGTH_SHORT).show();
                     }
                 });
-    }
-
-    public FirebaseAuth getmAuth() {
-        return mAuth;
     }
 
 }

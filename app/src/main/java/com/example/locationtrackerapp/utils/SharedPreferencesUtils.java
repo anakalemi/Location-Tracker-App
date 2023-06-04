@@ -3,7 +3,7 @@ package com.example.locationtrackerapp.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-public class SharedPreferencesUtil {
+public class SharedPreferencesUtils {
 
     private static final String PREF_NAME = "MyPrefs";
     public static final String EMAIL_KEY = "emailKey";
@@ -13,7 +13,7 @@ public class SharedPreferencesUtil {
     private SharedPreferences.Editor editor;
     private Context context;
 
-    public SharedPreferencesUtil(Context context) {
+    public SharedPreferencesUtils(Context context) {
         this.context = context;
         sharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
