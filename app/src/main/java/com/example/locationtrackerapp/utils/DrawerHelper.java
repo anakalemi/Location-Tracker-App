@@ -13,6 +13,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.locationtrackerapp.R;
+import com.example.locationtrackerapp.activities.FriendsActivity;
 import com.example.locationtrackerapp.activities.LogInActivity;
 import com.example.locationtrackerapp.activities.MainActivity;
 import com.google.android.material.navigation.NavigationView;
@@ -56,7 +57,9 @@ public class DrawerHelper implements NavigationView.OnNavigationItemSelectedList
             activity.startActivity(intent);
             activity.finish();
         } else if (item.getItemId() == R.id.friendsItem) {
-            // Todo: Handle friends item click
+            Intent intent = new Intent(activity, FriendsActivity.class);
+            activity.startActivity(intent);
+            activity.finish();
         } else if (item.getItemId() == R.id.logOutItem) {
             logout();
         }

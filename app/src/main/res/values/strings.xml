@@ -13,4 +13,7 @@
     <string name="profile">Profile</string>
     <string name="friends">Friends</string>
     <string name="log_out">Log Out</string>
+    <string name="manage_requests">Manage Requests</string>
+    <string name="users">Users</string>
+    <string name="requests">Requests</string>
 </resources>
