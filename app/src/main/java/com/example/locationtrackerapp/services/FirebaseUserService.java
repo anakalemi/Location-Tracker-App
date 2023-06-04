@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import com.example.locationtrackerapp.entities.User;
 import com.example.locationtrackerapp.entities.UserFriendRequest;
+import com.example.locationtrackerapp.utils.LocationTrackerAppUtils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -75,6 +76,29 @@ public class FirebaseUserService {
         void onDataCancelled(String errorMessage);
     }
 
+    public void loadCurrentUserByUuid(String uuid) {
+        DatabaseReference usersRef = mDatabase.child("users").child(uuid);
+        usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    User user = dataSnapshot.getValue(User.class);
+                    if (user != null) {
+                        LocationTrackerAppUtils.setCurrentUser(user);
+                    }
+                } else {
+                    Log.d(TAG, "User with UUID " + uuid + " not found.");
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Error occurred while retrieving user data
+                Log.e(TAG, "Error retrieving user data: " + databaseError.getMessage());
+            }
+        });
+    }
+
 
     public void sendFriendRequest(String receiverUuid) {
         DatabaseReference usersRef = mDatabase.child("users");
@@ -93,5 +117,6 @@ public class FirebaseUserService {
                 });
 
     }
+
 
 }

@@ -74,6 +74,8 @@ public class LogInActivity extends AppCompatActivity {
         if (sharedPreferencesUtils.getString(SharedPreferencesUtils.EMAIL_KEY).isEmpty()
                 || sharedPreferencesUtils.getString(SharedPreferencesUtils.PASS_KEY).isEmpty()) {
             biometricIdentificationButton.setVisibility(View.GONE);
+        } else {
+            emailTextInput.setText(sharedPreferencesUtils.getString(SharedPreferencesUtils.EMAIL_KEY));
         }
     }
 

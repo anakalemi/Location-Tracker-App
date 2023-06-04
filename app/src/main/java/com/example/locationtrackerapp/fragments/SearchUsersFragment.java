@@ -17,7 +17,7 @@ import com.example.locationtrackerapp.R;
 import com.example.locationtrackerapp.adapters.UserListAdapter;
 import com.example.locationtrackerapp.entities.User;
 import com.example.locationtrackerapp.services.FirebaseUserService;
-import com.google.firebase.auth.FirebaseAuth;
+import com.example.locationtrackerapp.utils.LocationTrackerAppUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,22 +42,33 @@ public class SearchUsersFragment extends Fragment {
     private void loadListeners() {
         adapter.setOnItemClickListener(position -> {
             User selectedUser = adapter.getUserList().get(position);
-            boolean hasAnyPendingRequest = selectedUser.getFriendRequests().values().stream()
+            User currentUser = LocationTrackerAppUtils.getCurrentUser();
+            boolean isRequestSent = selectedUser.getFriendRequests().values().stream()
                     .anyMatch(r -> r.getSenderUUID()
-                            .equals(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+                            .equals(currentUser.getUuid()));
 
-            if (!hasAnyPendingRequest) {
+            boolean isRequestPending = currentUser.getFriendRequests().values().stream()
+                    .anyMatch(r -> r.getSenderUUID()
+                            .equals(selectedUser.getUuid()));
+
+            if (isRequestSent) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                builder.setTitle("Friend Request Pending")
+                        .setMessage("Wait for " + selectedUser.getName() + " to respond.")
+                        .setNegativeButton("Ok", (dialogInterface, i) -> dialogInterface.dismiss())
+                        .show();
+            } else if (isRequestPending) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                builder.setTitle("Friend Request Pending")
+                        .setMessage("Go to Requests to respond.")
+                        .setNegativeButton("Ok", (dialogInterface, i) -> dialogInterface.dismiss())
+                        .show();
+            } else {
                 AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
                 builder.setTitle("Send Friend Request")
                         .setMessage("Do you want to send a friend request to " + selectedUser.getName() + "?")
                         .setPositiveButton("Send", (dialogInterface, i) -> sendFriendRequest(selectedUser))
                         .setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.dismiss())
-                        .show();
-            } else {
-                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-                builder.setTitle("Friend Request Pending")
-                        .setMessage("Wait for " + selectedUser.getName() + " to respond.")
-                        .setNegativeButton("Ok", (dialogInterface, i) -> dialogInterface.dismiss())
                         .show();
             }
         });

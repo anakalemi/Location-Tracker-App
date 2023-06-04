@@ -36,6 +36,7 @@ public class FirebaseAuthService {
                         user.updateProfile(profileUpdates)
                                 .addOnCompleteListener(task1 -> {
                                     if (task1.isSuccessful()) {
+                                        new FirebaseUserService(mContext).storeUserInFirebase();
                                         Log.d(TAG, "User profile updated.");
                                     }
                                 });
@@ -54,14 +55,11 @@ public class FirebaseAuthService {
                     if (task.isSuccessful()) {
                         // Login successful
                         Log.d(TAG, "Login successful.");
-                        SharedPreferencesUtils sharedPreferences = new SharedPreferencesUtils(mContext);
-                        sharedPreferences.saveString(SharedPreferencesUtils.EMAIL_KEY, email);
-                        sharedPreferences.saveString(SharedPreferencesUtils.PASS_KEY, password);
+                        storeCredentialsInSharedPreferences(email, password);
+                        saveUserSession(email);
+                        new FirebaseUserService(mContext)
+                                .loadCurrentUserByUuid(FirebaseAuth.getInstance().getUid());
 
-                        new FirebaseUserService(mContext).storeUserInFirebase();
-
-                        SessionManager sessionManager = new SessionManager(mContext);
-                        sessionManager.saveSession(mAuth.getCurrentUser().getUid(), email);
                         mContext.startActivity(new Intent(mContext, MainActivity.class));
                         ((Activity) mContext).finish();
                     } else {
@@ -70,6 +68,17 @@ public class FirebaseAuthService {
                         Toast.makeText(mContext, "Login failed: " + errorMessage, Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private void saveUserSession(String email) {
+        SessionManager sessionManager = new SessionManager(mContext);
+        sessionManager.saveSession(mAuth.getCurrentUser().getUid(), email);
+    }
+
+    private void storeCredentialsInSharedPreferences(String email, String password) {
+        SharedPreferencesUtils sharedPreferences = new SharedPreferencesUtils(mContext);
+        sharedPreferences.saveString(SharedPreferencesUtils.EMAIL_KEY, email);
+        sharedPreferences.saveString(SharedPreferencesUtils.PASS_KEY, password);
     }
 
 }
