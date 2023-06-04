@@ -37,6 +37,9 @@
             android:name=".activities.FriendsManagerActivity"
             android:exported="false" />
         <activity
+            android:name=".activities.UserMapActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.LogInActivity"
             android:exported="true">
             <intent-filter>

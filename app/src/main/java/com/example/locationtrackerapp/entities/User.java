@@ -2,12 +2,13 @@ package com.example.locationtrackerapp.entities;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class User {
+public class User implements Serializable {
     private String uuid;
     private String name;
     private String email;

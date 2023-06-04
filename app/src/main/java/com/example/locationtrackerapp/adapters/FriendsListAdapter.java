@@ -79,4 +79,8 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
         handler.post(this::notifyDataSetChanged);
     }
 
+    public List<User> getUserList() {
+        return userList;
+    }
+
 }

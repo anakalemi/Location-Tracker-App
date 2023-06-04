@@ -1,6 +1,8 @@
 package com.example.locationtrackerapp.entities;
 
-public class UserFriend {
+import java.io.Serializable;
+
+public class UserFriend implements Serializable {
     public static final int STATUS_NOT_CONNECTED = 0;
     public static final int STATUS_CONNECTED = 1;
 

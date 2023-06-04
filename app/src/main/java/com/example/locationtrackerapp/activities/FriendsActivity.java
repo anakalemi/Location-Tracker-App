@@ -40,6 +40,17 @@ public class FriendsActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
         loadRecyclerViewAdapter();
 
+        loadListeners();
+    }
+
+    private void loadListeners() {
+        adapter.setOnItemClickListener(position -> {
+            User selectedUser = adapter.getUserList().get(position);
+            Intent intent = new Intent(this, UserMapActivity.class);
+            intent.putExtra("user", selectedUser);
+            startActivity(intent);
+        });
+
         FloatingActionButton manageRequestsFAB = findViewById(R.id.manageRequestsFAB);
         manageRequestsFAB.setOnClickListener(v -> {
             Intent intent = new Intent(FriendsActivity.this, FriendsManagerActivity.class);

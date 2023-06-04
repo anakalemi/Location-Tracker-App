@@ -1,6 +1,8 @@
 package com.example.locationtrackerapp.entities;
 
-public class UserFriendRequest {
+import java.io.Serializable;
+
+public class UserFriendRequest implements Serializable {
     public static final int STATUS_REJECTED = 0;
     public static final int STATUS_ACCEPTED = 1;
     public static final int STATUS_PENDING = 2;
