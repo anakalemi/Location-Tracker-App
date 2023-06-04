@@ -57,8 +57,6 @@ public class FirebaseAuthService {
                         Log.d(TAG, "Login successful.");
                         storeCredentialsInSharedPreferences(email, password);
                         saveUserSession(email);
-                        new FirebaseUserService(mContext)
-                                .loadCurrentUserByUuid(FirebaseAuth.getInstance().getUid());
 
                         mContext.startActivity(new Intent(mContext, MainActivity.class));
                         ((Activity) mContext).finish();

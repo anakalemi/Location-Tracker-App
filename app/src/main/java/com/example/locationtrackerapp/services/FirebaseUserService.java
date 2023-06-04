@@ -5,6 +5,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.locationtrackerapp.entities.User;
+import com.example.locationtrackerapp.entities.UserFriend;
 import com.example.locationtrackerapp.entities.UserFriendRequest;
 import com.example.locationtrackerapp.utils.LocationTrackerAppUtils;
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,8 +21,8 @@ import java.util.List;
 
 public class FirebaseUserService {
     private static final String TAG = "FirebaseUserService";
-    private DatabaseReference mDatabase;
-    private Context context;
+    private final DatabaseReference mDatabase;
+    private final Context context;
 
     public FirebaseUserService(Context context) {
         this.context = context;
@@ -114,6 +115,78 @@ public class FirebaseUserService {
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error sending friend request: " + e.getMessage());
+                });
+
+    }
+
+    public void rejectFriendRequest(String requestUuid) {
+        DatabaseReference friendRequestRef = mDatabase.child("users")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child("friendRequests")
+                .child(requestUuid);
+
+        friendRequestRef.child("status").setValue(UserFriendRequest.STATUS_REJECTED)
+                .addOnSuccessListener(aVoid -> {
+                    LocationTrackerAppUtils.getCurrentUser().getFriendRequests()
+                            .get(requestUuid)
+                            .setStatus(UserFriendRequest.STATUS_REJECTED);
+
+                    Toast.makeText(context, "Friend request rejected successfully.", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error rejecting friend request: " + e.getMessage());
+                });
+
+    }
+
+    public void acceptFriendRequest(String requestUuid, String senderUuid) {
+        DatabaseReference friendRequestRef = mDatabase.child("users")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child("friendRequests")
+                .child(requestUuid);
+
+        friendRequestRef.child("status").setValue(UserFriendRequest.STATUS_ACCEPTED)
+                .addOnSuccessListener(aVoid -> {
+                    LocationTrackerAppUtils.getCurrentUser().getFriendRequests()
+                            .get(requestUuid)
+                            .setStatus(UserFriendRequest.STATUS_ACCEPTED);
+                    addFriend(senderUuid);
+                    Toast.makeText(context, "Friend request accepted successfully.", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error accepting friend request: " + e.getMessage());
+                });
+
+    }
+
+    public void addFriend(String senderUuid) {
+        DatabaseReference usersRef = mDatabase.child("users");
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        DatabaseReference senderUserRef = usersRef.child(senderUuid);
+        UserFriend senderFriend = new UserFriend(currentUser.getUid(), UserFriend.STATUS_CONNECTED);
+        String requestId = senderUserRef.child("friends").push().getKey();
+        senderUserRef.child("friends").child(requestId).setValue(senderFriend)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(context, "Friend connected.", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error connecting with friend: " + e.getMessage());
+                });
+
+
+        DatabaseReference currentUserRef = usersRef.child(currentUser.getUid());
+        UserFriend currentFriend = new UserFriend(senderUuid, UserFriend.STATUS_CONNECTED);
+        String request2Id = currentUserRef.child("friends").push().getKey();
+        currentUserRef.child("friends").child(request2Id).setValue(currentFriend)
+                .addOnSuccessListener(aVoid -> {
+                    LocationTrackerAppUtils.getCurrentUser().getFriends()
+                            .put(request2Id, currentFriend);
+
+                    Toast.makeText(context, "Friend connected.", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error connecting with friend: " + e.getMessage());
                 });
 
     }

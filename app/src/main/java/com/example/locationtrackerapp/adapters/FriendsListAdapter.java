@@ -1,5 +1,8 @@
 package com.example.locationtrackerapp.adapters;
 
+import android.annotation.SuppressLint;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +18,7 @@ import java.util.List;
 
 public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.ViewHolder> {
 
-    private final List<User> userList;
+    private List<User> userList;
     private OnItemClickListener onItemClickListener;
 
     public FriendsListAdapter(List<User> userList) {
@@ -67,6 +70,13 @@ public class FriendsListAdapter extends RecyclerView.Adapter<FriendsListAdapter.
 
     public void setOnItemClickListener(OnItemClickListener listener) {
         onItemClickListener = listener;
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void setUserList(List<User> userList) {
+        this.userList = userList;
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(this::notifyDataSetChanged);
     }
 
 }

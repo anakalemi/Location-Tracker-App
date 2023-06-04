@@ -1,18 +1,23 @@
 package com.example.locationtrackerapp.activities;
 
+import static android.content.ContentValues.TAG;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.MenuItem;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.View;
-
 import com.example.locationtrackerapp.R;
 import com.example.locationtrackerapp.adapters.FriendsListAdapter;
 import com.example.locationtrackerapp.entities.User;
+import com.example.locationtrackerapp.entities.UserFriend;
+import com.example.locationtrackerapp.services.FirebaseUserService;
 import com.example.locationtrackerapp.utils.DrawerHelper;
+import com.example.locationtrackerapp.utils.LocationTrackerAppUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -20,10 +25,8 @@ import java.util.List;
 
 public class FriendsActivity extends AppCompatActivity {
 
-    private FloatingActionButton manageRequestsFAB;
     private DrawerHelper drawerHelper;
-    private RecyclerView recyclerView;
-    private List<User> userList;
+    private final FriendsListAdapter adapter = new FriendsListAdapter(new ArrayList<>());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,33 +35,41 @@ public class FriendsActivity extends AppCompatActivity {
 
         drawerHelper = new DrawerHelper(this);
 
-        recyclerView = findViewById(R.id.friendsRecyclerView);
-        setRecyclerViewAdapter();
+        RecyclerView recyclerView = findViewById(R.id.friendsRecyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
+        loadRecyclerViewAdapter();
 
-        manageRequestsFAB = findViewById(R.id.manageRequestsFAB);
-        manageRequestsFAB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(FriendsActivity.this, FriendsManagerActivity.class);
-                startActivity(intent);
-            }
+        FloatingActionButton manageRequestsFAB = findViewById(R.id.manageRequestsFAB);
+        manageRequestsFAB.setOnClickListener(v -> {
+            Intent intent = new Intent(FriendsActivity.this, FriendsManagerActivity.class);
+            startActivity(intent);
         });
     }
 
-    private void setRecyclerViewAdapter() {
-        List<User> userList = getUsers();
-        FriendsListAdapter adapter = new FriendsListAdapter(userList);
+    private void loadRecyclerViewAdapter() {
+        new FirebaseUserService(this).getAllUsers(new FirebaseUserService.UserCallback() {
+            @Override
+            public void onUsersLoaded(List<User> userList) {
+                List<User> friendsList = new ArrayList<>();
+                for (User user : userList) {
+                    UserFriend userFriend = user.getFriends().values().stream()
+                            .filter(f -> f.getUuid().equals(LocationTrackerAppUtils.getCurrentUser().getUuid()))
+                            .findAny()
+                            .orElseGet(null);
+                    if (userFriend != null && userFriend.getStatus() == UserFriend.STATUS_CONNECTED) {
+                        friendsList.add(user);
+                    }
+                }
 
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
+                adapter.setUserList(friendsList);
+            }
 
-        recyclerView.setAdapter(adapter);
-    }
-
-    private List<User> getUsers() { //todo
-        List<User> users = new ArrayList<>();
-        users.add(new User("Friend", "friend@gmail.com"));
-        return users;
+            @Override
+            public void onDataCancelled(String errorMessage) {
+                Log.e(TAG, "Error retrieving users: " + errorMessage);
+            }
+        });
     }
 
     @Override
@@ -70,4 +81,11 @@ public class FriendsActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         return drawerHelper.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadRecyclerViewAdapter();
+    }
+
 }

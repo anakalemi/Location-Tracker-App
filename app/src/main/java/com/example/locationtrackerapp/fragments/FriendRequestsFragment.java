@@ -1,7 +1,10 @@
 package com.example.locationtrackerapp.fragments;
 
+import static android.content.ContentValues.TAG;
+
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +16,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.locationtrackerapp.R;
 import com.example.locationtrackerapp.adapters.UserListAdapter;
 import com.example.locationtrackerapp.entities.User;
+import com.example.locationtrackerapp.entities.UserFriendRequest;
+import com.example.locationtrackerapp.services.FirebaseUserService;
+import com.example.locationtrackerapp.utils.LocationTrackerAppUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,17 +26,17 @@ import java.util.List;
 public class FriendRequestsFragment extends Fragment {
 
     private View view;
-    private RecyclerView recyclerView;
-    private UserListAdapter adapter;
-    private List<User> userList;
+    private final UserListAdapter adapter = new UserListAdapter(new ArrayList<>());
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_friend_requests, container, false);
 
-        recyclerView = view.findViewById(R.id.friendsRecyclerView);
-        setRecyclerViewAdapter();
+        RecyclerView recyclerView = view.findViewById(R.id.friendsRecyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        recyclerView.setAdapter(adapter);
+        loadRecyclerViewAdapter();
 
         loadListeners();
 
@@ -39,33 +45,69 @@ public class FriendRequestsFragment extends Fragment {
 
     private void loadListeners() {
         adapter.setOnItemClickListener(position -> {
+            User selectedUser = adapter.getUserList().get(position);
             AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
             builder.setTitle("Friend Request")
                     .setMessage("Do you want to accept the friend request?")
                     .setPositiveButton("Accept", (dialogInterface, i) -> {
-                        //todo acceptFriendRequest();
+                        acceptFriendRequest(selectedUser);
+                        loadRecyclerViewAdapter();
                     })
                     .setNegativeButton("Reject", (dialogInterface, i) -> {
-                        //todo rejectFriendRequest();
+                        rejectFriendRequest(selectedUser);
+                        loadRecyclerViewAdapter();
                     })
                     .show();
         });
     }
 
-
-    private void setRecyclerViewAdapter() {
-        List<User> userList = getUsers();
-        adapter = new UserListAdapter(userList);
-
-        LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
-        recyclerView.setLayoutManager(layoutManager);
-
-        recyclerView.setAdapter(adapter);
+    private void acceptFriendRequest(User selectedUser) {
+        User currentUser = LocationTrackerAppUtils.getCurrentUser();
+        currentUser.getFriendRequests().entrySet().stream()
+                .filter(r -> r.getValue().getSenderUUID().equals(selectedUser.getUuid()))
+                .findFirst().ifPresent(friendRequestEntry -> {
+                    String requestUUID = friendRequestEntry.getKey();
+                    new FirebaseUserService(view.getContext()).acceptFriendRequest(requestUUID, selectedUser.getUuid());
+                });
     }
 
-    private List<User> getUsers() { //todo
-        List<User> users = new ArrayList<>();
-        users.add(new User("User", "user@gmail.com"));
-        return users;
+    private void rejectFriendRequest(User selectedUser) {
+        User currentUser = LocationTrackerAppUtils.getCurrentUser();
+        currentUser.getFriendRequests().entrySet().stream()
+                .filter(r -> r.getValue().getSenderUUID().equals(selectedUser.getUuid()))
+                .findFirst().ifPresent(friendRequestEntry -> {
+                    String requestUUID = friendRequestEntry.getKey();
+                    new FirebaseUserService(view.getContext()).rejectFriendRequest(requestUUID);
+                });
+
+    }
+
+    private void loadRecyclerViewAdapter() {
+        new FirebaseUserService(view.getContext()).getAllUsers(new FirebaseUserService.UserCallback() {
+            @Override
+            public void onUsersLoaded(List<User> userList) {
+                List<User> usersOnRequest = new ArrayList<>();
+                User currentUser = LocationTrackerAppUtils.getCurrentUser();
+                for (UserFriendRequest request : currentUser.getFriendRequests().values()) {
+                    for (User user : userList) {
+                        if (request.getSenderUUID().equals(user.getUuid()) && request.getStatus() == UserFriendRequest.STATUS_PENDING) {
+                            usersOnRequest.add(user);
+                        }
+                    }
+                }
+                adapter.setUserList(usersOnRequest);
+            }
+
+            @Override
+            public void onDataCancelled(String errorMessage) {
+                Log.e(TAG, "Error retrieving users: " + errorMessage);
+            }
+        });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadRecyclerViewAdapter();
     }
 }

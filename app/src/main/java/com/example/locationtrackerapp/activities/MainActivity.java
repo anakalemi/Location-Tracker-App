@@ -13,6 +13,7 @@ import androidx.core.app.ActivityCompat;
 
 import com.example.locationtrackerapp.R;
 import com.example.locationtrackerapp.services.FirebaseLocationService;
+import com.example.locationtrackerapp.services.FirebaseUserService;
 import com.example.locationtrackerapp.utils.DrawerHelper;
 import com.example.locationtrackerapp.utils.LocationTrackerAppUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -27,6 +28,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity
         implements OnMapReadyCallback {
@@ -44,6 +46,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        new FirebaseUserService(this).loadCurrentUserByUuid(FirebaseAuth.getInstance().getUid());
 
         drawerHelper = new DrawerHelper(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
