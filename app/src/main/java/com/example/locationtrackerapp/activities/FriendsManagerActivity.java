@@ -30,7 +30,7 @@ public class FriendsManagerActivity extends AppCompatActivity {
 
         FriendsManagerTabAdapter reportsMenuAdapter = new FriendsManagerTabAdapter(this);
         viewPager2.setAdapter(reportsMenuAdapter);
-        viewPager2.setUserInputEnabled(false);
+        viewPager2.setUserInputEnabled(true);
 
         loadListeners();
     }

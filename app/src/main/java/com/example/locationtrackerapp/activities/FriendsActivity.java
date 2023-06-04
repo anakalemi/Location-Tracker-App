@@ -67,7 +67,7 @@ public class FriendsActivity extends AppCompatActivity {
                     UserFriend userFriend = user.getFriends().values().stream()
                             .filter(f -> f.getUuid().equals(LocationTrackerAppUtils.getCurrentUser().getUuid()))
                             .findAny()
-                            .orElseGet(null);
+                            .orElse(null);
                     if (userFriend != null && userFriend.getStatus() == UserFriend.STATUS_CONNECTED) {
                         friendsList.add(user);
                     }
