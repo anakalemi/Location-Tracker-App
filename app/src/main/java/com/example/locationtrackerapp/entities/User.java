@@ -14,6 +14,7 @@ public class User implements Serializable {
     private String email;
     private double latitude;
     private double longitude;
+    private String lastUpdate;
     private Map<String, UserFriend> friends = new HashMap<>();
     private Map<String, UserFriendRequest> friendRequests = new HashMap<>();
 
@@ -85,5 +86,13 @@ public class User implements Serializable {
 
     public void setFriendRequests(Map<String, UserFriendRequest> friendRequests) {
         this.friendRequests = friendRequests;
+    }
+
+    public String getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(String lastUpdate) {
+        this.lastUpdate = lastUpdate;
     }
 }

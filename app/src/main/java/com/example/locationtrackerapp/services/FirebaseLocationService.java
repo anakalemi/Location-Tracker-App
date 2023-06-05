@@ -7,6 +7,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class FirebaseLocationService {
 
     private static final String TAG = "FirebaseLocationService";
@@ -38,6 +41,15 @@ public class FirebaseLocationService {
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error storing longitude in Firebase: " + e.getMessage());
+                });
+
+        String lastUpdate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+        userLocationRef.child("lastUpdate").setValue(lastUpdate)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "DateTime stored in Firebase.");
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error storing DateTime in Firebase: " + e.getMessage());
                 });
     }
 

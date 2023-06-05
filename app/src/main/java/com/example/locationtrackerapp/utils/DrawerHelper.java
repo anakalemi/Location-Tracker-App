@@ -52,7 +52,7 @@ public class DrawerHelper implements NavigationView.OnNavigationItemSelectedList
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.profileItem) {
+        if (item.getItemId() == R.id.homeItem) {
             Intent intent = new Intent(activity, MainActivity.class);
             activity.startActivity(intent);
             activity.finish();

@@ -16,4 +16,6 @@
     <string name="manage_requests">Manage Requests</string>
     <string name="users">Users</string>
     <string name="requests">Requests</string>
+    <string name="home">Home</string>
+    <string name="notification">notification</string>
 </resources>

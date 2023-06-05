@@ -62,7 +62,8 @@ public class UserMapActivity extends AppCompatActivity implements OnMapReadyCall
 
         googleMap.addMarker(new MarkerOptions()
                         .position(userLocation)
-                        .title(selectedUser.getName()))
+                        .title(selectedUser.getName())
+                        .snippet(selectedUser.getLastUpdate()))
                 .showInfoWindow();
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 15f));
     }
