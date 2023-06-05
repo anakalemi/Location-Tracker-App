@@ -19,6 +19,7 @@ import com.example.locationtrackerapp.entities.User;
 import com.example.locationtrackerapp.entities.UserFriendRequest;
 import com.example.locationtrackerapp.services.FirebaseUserService;
 import com.example.locationtrackerapp.utils.LocationTrackerAppUtils;
+import com.example.locationtrackerapp.utils.NetworkUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,22 +91,30 @@ public class SearchUsersFragment extends Fragment {
     }
 
     private void sendFriendRequest(User selectedUser) {
-        new FirebaseUserService(view.getContext()).sendFriendRequest(selectedUser.getUuid());
+        if (NetworkUtils.isNetworkConnected(view.getContext())) {
+            new FirebaseUserService(view.getContext()).sendFriendRequest(selectedUser.getUuid());
+        } else {
+            LocationTrackerAppUtils.showCookieBarNoInternet(view.getContext());
+        }
     }
 
     private void loadRecyclerViewAdapter() {
-        new FirebaseUserService(view.getContext()).getAllUsers(new FirebaseUserService.UserCallback() {
-            @Override
-            public void onUsersLoaded(List<User> userList) {
-                adapter.setUserList(userList);
-                recyclerView.setAdapter(adapter);
-            }
+        if (NetworkUtils.isNetworkConnected(view.getContext())) {
+            new FirebaseUserService(view.getContext()).getAllUsers(new FirebaseUserService.UserCallback() {
+                @Override
+                public void onUsersLoaded(List<User> userList) {
+                    adapter.setUserList(userList);
+                    recyclerView.setAdapter(adapter);
+                }
 
-            @Override
-            public void onDataCancelled(String errorMessage) {
-                Log.e(TAG, "Error retrieving users: " + errorMessage);
-            }
-        });
+                @Override
+                public void onDataCancelled(String errorMessage) {
+                    Log.e(TAG, "Error retrieving users: " + errorMessage);
+                }
+            });
+        } else {
+            LocationTrackerAppUtils.showCookieBarNoInternet(view.getContext());
+        }
     }
 
     @Override

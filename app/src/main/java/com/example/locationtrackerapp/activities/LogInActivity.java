@@ -17,6 +17,8 @@ import androidx.core.app.ActivityCompat;
 
 import com.example.locationtrackerapp.R;
 import com.example.locationtrackerapp.services.FirebaseAuthService;
+import com.example.locationtrackerapp.utils.LocationTrackerAppUtils;
+import com.example.locationtrackerapp.utils.NetworkUtils;
 import com.example.locationtrackerapp.utils.SessionManager;
 import com.example.locationtrackerapp.utils.SharedPreferencesUtils;
 import com.google.android.material.button.MaterialButton;
@@ -116,8 +118,12 @@ public class LogInActivity extends AppCompatActivity {
             passwordTextLayout.setErrorEnabled(false);
         }
 
-        FirebaseAuthService firebaseAuthService = new FirebaseAuthService(this);
-        firebaseAuthService.loginUser(email, password);
+        if (NetworkUtils.isNetworkConnected(this)) {
+            FirebaseAuthService firebaseAuthService = new FirebaseAuthService(this);
+            firebaseAuthService.loginUser(email, password);
+        } else {
+            LocationTrackerAppUtils.showCookieBarNoInternet(this);
+        }
 
         // Clear the input fields
         emailTextInput.setText("");
@@ -179,8 +185,13 @@ public class LogInActivity extends AppCompatActivity {
                     String email = sharedPreferencesUtils.getString(SharedPreferencesUtils.EMAIL_KEY);
                     String password = sharedPreferencesUtils.getString(SharedPreferencesUtils.PASS_KEY);
 
-                    FirebaseAuthService firebaseAuthService = new FirebaseAuthService(LogInActivity.this);
-                    firebaseAuthService.loginUser(email, password);
+                    if (NetworkUtils.isNetworkConnected(LogInActivity.this)) {
+                        FirebaseAuthService firebaseAuthService = new FirebaseAuthService(LogInActivity.this);
+                        firebaseAuthService.loginUser(email, password);
+                    } else {
+                        LocationTrackerAppUtils.showCookieBarNoInternet(LogInActivity.this);
+                    }
+
                     super.onAuthenticationSucceeded(result);
                 }
             };

@@ -18,6 +18,7 @@ import com.example.locationtrackerapp.entities.UserFriend;
 import com.example.locationtrackerapp.services.FirebaseUserService;
 import com.example.locationtrackerapp.utils.DrawerHelper;
 import com.example.locationtrackerapp.utils.LocationTrackerAppUtils;
+import com.example.locationtrackerapp.utils.NetworkUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -59,28 +60,32 @@ public class FriendsActivity extends AppCompatActivity {
     }
 
     private void loadRecyclerViewAdapter() {
-        new FirebaseUserService(this).getAllUsers(new FirebaseUserService.UserCallback() {
-            @Override
-            public void onUsersLoaded(List<User> userList) {
-                List<User> friendsList = new ArrayList<>();
-                for (User user : userList) {
-                    UserFriend userFriend = user.getFriends().values().stream()
-                            .filter(f -> f.getUuid().equals(LocationTrackerAppUtils.getCurrentUser().getUuid()))
-                            .findAny()
-                            .orElse(null);
-                    if (userFriend != null && userFriend.getStatus() == UserFriend.STATUS_CONNECTED) {
-                        friendsList.add(user);
+        if (NetworkUtils.isNetworkConnected(this)) {
+            new FirebaseUserService(this).getAllUsers(new FirebaseUserService.UserCallback() {
+                @Override
+                public void onUsersLoaded(List<User> userList) {
+                    List<User> friendsList = new ArrayList<>();
+                    for (User user : userList) {
+                        UserFriend userFriend = user.getFriends().values().stream()
+                                .filter(f -> f.getUuid().equals(LocationTrackerAppUtils.getCurrentUser().getUuid()))
+                                .findAny()
+                                .orElse(null);
+                        if (userFriend != null && userFriend.getStatus() == UserFriend.STATUS_CONNECTED) {
+                            friendsList.add(user);
+                        }
                     }
+
+                    adapter.setUserList(friendsList);
                 }
 
-                adapter.setUserList(friendsList);
-            }
-
-            @Override
-            public void onDataCancelled(String errorMessage) {
-                Log.e(TAG, "Error retrieving users: " + errorMessage);
-            }
-        });
+                @Override
+                public void onDataCancelled(String errorMessage) {
+                    Log.e(TAG, "Error retrieving users: " + errorMessage);
+                }
+            });
+        } else {
+            LocationTrackerAppUtils.showCookieBarNoInternet(this);
+        }
     }
 
     @Override

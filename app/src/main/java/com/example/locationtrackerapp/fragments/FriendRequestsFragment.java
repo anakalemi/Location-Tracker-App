@@ -19,6 +19,7 @@ import com.example.locationtrackerapp.entities.User;
 import com.example.locationtrackerapp.entities.UserFriendRequest;
 import com.example.locationtrackerapp.services.FirebaseUserService;
 import com.example.locationtrackerapp.utils.LocationTrackerAppUtils;
+import com.example.locationtrackerapp.utils.NetworkUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +68,11 @@ public class FriendRequestsFragment extends Fragment {
                 .filter(r -> r.getValue().getSenderUUID().equals(selectedUser.getUuid()))
                 .findFirst().ifPresent(friendRequestEntry -> {
                     String requestUUID = friendRequestEntry.getKey();
-                    new FirebaseUserService(view.getContext()).acceptFriendRequest(requestUUID, selectedUser.getUuid());
+                    if (NetworkUtils.isNetworkConnected(view.getContext())) {
+                        new FirebaseUserService(view.getContext()).acceptFriendRequest(requestUUID, selectedUser.getUuid());
+                    } else {
+                        LocationTrackerAppUtils.showCookieBarNoInternet(view.getContext());
+                    }
                 });
     }
 
@@ -77,32 +82,40 @@ public class FriendRequestsFragment extends Fragment {
                 .filter(r -> r.getValue().getSenderUUID().equals(selectedUser.getUuid()))
                 .findFirst().ifPresent(friendRequestEntry -> {
                     String requestUUID = friendRequestEntry.getKey();
-                    new FirebaseUserService(view.getContext()).rejectFriendRequest(requestUUID);
+                    if (NetworkUtils.isNetworkConnected(view.getContext())) {
+                        new FirebaseUserService(view.getContext()).rejectFriendRequest(requestUUID);
+                    } else {
+                        LocationTrackerAppUtils.showCookieBarNoInternet(view.getContext());
+                    }
                 });
 
     }
 
     private void loadRecyclerViewAdapter() {
-        new FirebaseUserService(view.getContext()).getAllUsers(new FirebaseUserService.UserCallback() {
-            @Override
-            public void onUsersLoaded(List<User> userList) {
-                List<User> usersOnRequest = new ArrayList<>();
-                User currentUser = LocationTrackerAppUtils.getCurrentUser();
-                for (UserFriendRequest request : currentUser.getFriendRequests().values()) {
-                    for (User user : userList) {
-                        if (request.getSenderUUID().equals(user.getUuid()) && request.getStatus() == UserFriendRequest.STATUS_PENDING) {
-                            usersOnRequest.add(user);
+        if (NetworkUtils.isNetworkConnected(view.getContext())) {
+            new FirebaseUserService(view.getContext()).getAllUsers(new FirebaseUserService.UserCallback() {
+                @Override
+                public void onUsersLoaded(List<User> userList) {
+                    List<User> usersOnRequest = new ArrayList<>();
+                    User currentUser = LocationTrackerAppUtils.getCurrentUser();
+                    for (UserFriendRequest request : currentUser.getFriendRequests().values()) {
+                        for (User user : userList) {
+                            if (request.getSenderUUID().equals(user.getUuid()) && request.getStatus() == UserFriendRequest.STATUS_PENDING) {
+                                usersOnRequest.add(user);
+                            }
                         }
                     }
+                    adapter.setUserList(usersOnRequest);
                 }
-                adapter.setUserList(usersOnRequest);
-            }
 
-            @Override
-            public void onDataCancelled(String errorMessage) {
-                Log.e(TAG, "Error retrieving users: " + errorMessage);
-            }
-        });
+                @Override
+                public void onDataCancelled(String errorMessage) {
+                    Log.e(TAG, "Error retrieving users: " + errorMessage);
+                }
+            });
+        } else {
+            LocationTrackerAppUtils.showCookieBarNoInternet(view.getContext());
+        }
     }
 
     @Override

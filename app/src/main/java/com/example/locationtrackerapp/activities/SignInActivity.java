@@ -9,6 +9,8 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.locationtrackerapp.R;
 import com.example.locationtrackerapp.services.FirebaseAuthService;
+import com.example.locationtrackerapp.utils.LocationTrackerAppUtils;
+import com.example.locationtrackerapp.utils.NetworkUtils;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
@@ -91,8 +93,12 @@ public class SignInActivity extends AppCompatActivity {
             passwordTextLayout.setErrorEnabled(false);
         }
 
-        FirebaseAuthService firebaseAuthService = new FirebaseAuthService(this);
-        firebaseAuthService.registerUser(email, password, name);
+        if (NetworkUtils.isNetworkConnected(this)) {
+            FirebaseAuthService firebaseAuthService = new FirebaseAuthService(this);
+            firebaseAuthService.registerUser(email, password, name);
+        } else {
+            LocationTrackerAppUtils.showCookieBarNoInternet(this);
+        }
 
         // Clear the input fields
         nameTextInput.setText("");

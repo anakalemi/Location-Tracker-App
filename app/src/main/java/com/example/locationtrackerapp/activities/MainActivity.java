@@ -12,10 +12,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.example.locationtrackerapp.R;
+import com.example.locationtrackerapp.services.FirebaseAuthService;
 import com.example.locationtrackerapp.services.FirebaseLocationService;
 import com.example.locationtrackerapp.services.FirebaseUserService;
 import com.example.locationtrackerapp.utils.DrawerHelper;
 import com.example.locationtrackerapp.utils.LocationTrackerAppUtils;
+import com.example.locationtrackerapp.utils.NetworkUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -46,7 +48,12 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        new FirebaseUserService(this).loadCurrentUserByUuid(FirebaseAuth.getInstance().getUid());
+        if (NetworkUtils.isNetworkConnected(this)) {
+            new FirebaseUserService(this)
+                    .loadCurrentUserByUuid(FirebaseAuth.getInstance().getUid());
+        } else {
+            LocationTrackerAppUtils.showCookieBarNoInternet(this);
+        }
 
         drawerHelper = new DrawerHelper(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -77,8 +84,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void storeCurrentLocationInFirebase() {
-        FirebaseLocationService locationService = new FirebaseLocationService();
-        locationService.storeCurrentUserLocation(currentLocation.latitude, currentLocation.longitude);
+        if (NetworkUtils.isNetworkConnected(this)) {
+            FirebaseLocationService locationService = new FirebaseLocationService();
+            locationService.storeCurrentUserLocation(currentLocation.latitude, currentLocation.longitude);
+        } else {
+            LocationTrackerAppUtils.showCookieBarNoInternet(this);
+        }
     }
 
     private void startLocationUpdates() {

@@ -41,42 +41,4 @@ public class FirebaseLocationService {
                 });
     }
 
-    public Location getUserLocation(String userId, OnLocationLoadedListener listener) {
-        DatabaseReference userLocationRef = usersRef.child(userId);
-        Location location = new Location("");
-
-        userLocationRef.child("latitude").get()
-                .addOnSuccessListener(latitudeSnapshot -> {
-                    if (latitudeSnapshot.exists()) {
-                        double latitude = latitudeSnapshot.getValue(Double.class);
-                        location.setLatitude(latitude);
-
-                        userLocationRef.child("longitude").get()
-                                .addOnSuccessListener(longitudeSnapshot -> {
-                                    if (longitudeSnapshot.exists()) {
-                                        double longitude = longitudeSnapshot.getValue(Double.class);
-                                        location.setLongitude(longitude);
-                                        listener.onLocationLoaded(latitude, longitude);
-                                    } else {
-                                        Log.e(TAG, "Longitude does not exist for the user.");
-                                    }
-                                })
-                                .addOnFailureListener(e -> {
-                                    Log.e(TAG, "Failed to get longitude from Firebase: " + e.getMessage());
-                                });
-                    } else {
-                        Log.e(TAG, "Latitude does not exist for the user.");
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to get latitude from Firebase: " + e.getMessage());
-                });
-
-        return location;
-    }
-
-    public interface OnLocationLoadedListener {
-        void onLocationLoaded(double latitude, double longitude);
-    }
-
 }
