@@ -13,6 +13,7 @@ tracking, user registration, friend requests, and location sharing between frien
 - [Usage](#usage)
 - [Dependencies](#dependencies)
 - [Configuration](#configuration)
+- [Preview](#preview)
 
 ## Overview
 
@@ -112,3 +113,9 @@ To configure the app and enable necessary services, follow these steps:
 
 - Make sure you have the required permissions declared in the manifest file, such as `INTERNET`
   , `ACCESS_FINE_LOCATION`, etc.
+
+## Preview
+
+![Login View](images/login.jpeg) ![Location on Map](images/location.jpeg)
+
+![System Users View](images/users.jpeg) ![Friend Request](images/request.jpeg)
