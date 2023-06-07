@@ -116,6 +116,10 @@ To configure the app and enable necessary services, follow these steps:
 
 ## Preview
 
-![Login View](images/login.jpeg) ![Location on Map](images/location.jpeg)
+| Login View | Location on Map |
+|:---:|:---:|
+| ![Login View](images/login.jpeg) | ![Location on Map](images/location.jpeg) |
 
-![System Users View](images/users.jpeg) ![Friend Request](images/request.jpeg)
+| System Users | Friend Request |
+|:---:|:---:|
+| ![System Users](images/users.jpeg) | ![Friend Request](images/request.jpeg) |
